@@ -6,7 +6,6 @@ import { type ReactNode, useContext, useEffect, useState } from "react"
 import { useIsHydrated } from "../../hooks/use-hydrated"
 import { AuthUIContext } from "../../lib/auth-ui-provider"
 import type { AuthView } from "../../lib/auth-view-paths"
-import { socialProviders } from "../../lib/social-providers"
 import { cn, getAuthViewByPath } from "../../lib/utils"
 import type { AuthLocalization } from "../../localization/auth-localization"
 import { AcceptInvitationCard } from "../organization/accept-invitation-card"
@@ -25,15 +24,13 @@ import {
     CardHeader,
     CardTitle
 } from "../ui/card"
-import { Separator } from "../ui/separator"
 import { AuthCallback } from "./auth-callback"
-import { AuthForm, type AuthFormClassNames } from "./auth-form"
-import { EmailOTPButton } from "./email-otp-button"
-import { MagicLinkButton } from "./magic-link-button"
+import { type AuthFormClassNames } from "./auth-form"
+import { AuthSeparator } from "./auth-separator"
+import { CredentialsSection } from "./credentials-section"
 import { OneTap } from "./one-tap"
-import { PasskeyButton } from "./passkey-button"
-import { ProviderButton } from "./provider-button"
 import { SignOut } from "./sign-out"
+import { SocialSection } from "./social-section"
 
 export interface AuthCardClassNames {
     base?: string
@@ -73,6 +70,15 @@ export interface AuthCardProps {
      * @default 0
      */
     otpSeparators?: 0 | 1 | 2
+    /**
+     * OTP code length
+     * @default 6
+     */
+    otpLength?: number
+    /**
+     * @default "social-first"
+     */
+    order?: "credentials-first" | "social-first"
 }
 
 export function AuthCard({
@@ -85,7 +91,9 @@ export function AuthCard({
     redirectTo,
     socialLayout = "auto",
     view,
-    otpSeparators = 0
+    otpSeparators = 0,
+    otpLength = 6,
+    order = "social-first"
 }: AuthCardProps) {
     const isHydrated = useIsHydrated()
 
@@ -120,6 +128,7 @@ export function AuthCard({
     view = view || getAuthViewByPath(viewPaths, path) || "SIGN_IN"
 
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isOTPPhase, setIsOTPPhase] = useState(false)
 
     useEffect(() => {
         const handlePageHide = () => {
@@ -179,6 +188,9 @@ export function AuthCard({
             ? localization.DISABLED_CREDENTIALS_DESCRIPTION
             : localization[`${view}_DESCRIPTION` as keyof typeof localization]
 
+    // Disable other login methods when in OTP phase
+    const shouldDisableOtherMethods = isOTPPhase
+
     return (
         <Card className={cn("w-full max-w-sm", className, classNames?.base)}>
             <CardHeader className={classNames?.header}>
@@ -195,7 +207,7 @@ export function AuthCard({
                             {localization[view as keyof typeof localization]}
                         </CardTitle>
 
-                        {description && (
+                        {description && !isOTPPhase && (
                             <CardDescription
                                 className={cn(
                                     "text-xs md:text-sm",
@@ -213,180 +225,77 @@ export function AuthCard({
                 {oneTap &&
                     ["SIGN_IN", "SIGN_UP", "MAGIC_LINK", "EMAIL_OTP"].includes(
                         view
-                    ) && (
+                    ) && !shouldDisableOtherMethods && (
                         <OneTap
                             localization={localization}
                             redirectTo={redirectTo}
                         />
                     )}
 
-                {(credentials || magicLink || emailOTP) && (
-                    <div className="grid gap-4">
-                        <AuthForm
-                            classNames={classNames?.form}
+                {(() => {
+                    // Check if sections should be shown
+                    const hasCredentials = credentials || magicLink || emailOTP
+                    const hasSocial = view !== "RESET_PASSWORD" &&
+                        (social?.providers?.length ||
+                            genericOAuth?.providers?.length ||
+                            (view === "SIGN_IN" && passkey))
+
+                    // Create the components
+                    const credentialsSection = (
+                        <CredentialsSection
+                            classNames={classNames}
                             callbackURL={callbackURL}
                             isSubmitting={isSubmitting}
                             localization={localization}
                             otpSeparators={otpSeparators}
+                            otpLength={otpLength}
                             pathname={pathname}
                             redirectTo={redirectTo}
                             setIsSubmitting={setIsSubmitting}
+                            view={view}
+                            onOTPPhaseChange={setIsOTPPhase}
                         />
+                    )
 
-                        {magicLink &&
-                            ((credentials &&
-                                [
-                                    "FORGOT_PASSWORD",
-                                    "SIGN_UP",
-                                    "SIGN_IN",
-                                    "MAGIC_LINK",
-                                    "EMAIL_OTP"
-                                ].includes(view)) ||
-                                (emailOTP && view === "EMAIL_OTP")) && (
-                                <MagicLinkButton
-                                    classNames={classNames}
-                                    localization={localization}
-                                    view={view}
-                                    isSubmitting={isSubmitting}
-                                />
-                            )}
+                    const socialSection = !shouldDisableOtherMethods ? (
+                        <SocialSection
+                            classNames={classNames}
+                            callbackURL={callbackURL}
+                            isSubmitting={isSubmitting}
+                            localization={localization}
+                            redirectTo={redirectTo}
+                            setIsSubmitting={setIsSubmitting}
+                            socialLayout={socialLayout}
+                            view={view}
+                        />
+                    ) : null
 
-                        {emailOTP &&
-                            ((credentials &&
-                                [
-                                    "FORGOT_PASSWORD",
-                                    "SIGN_UP",
-                                    "SIGN_IN",
-                                    "MAGIC_LINK",
-                                    "EMAIL_OTP"
-                                ].includes(view)) ||
-                                (magicLink &&
-                                    ["SIGN_IN", "MAGIC_LINK"].includes(
-                                        view
-                                    ))) && (
-                                <EmailOTPButton
-                                    classNames={classNames}
-                                    localization={localization}
-                                    view={view}
-                                    isSubmitting={isSubmitting}
-                                />
-                            )}
-                    </div>
-                )}
+                    const separator = hasCredentials && hasSocial && !shouldDisableOtherMethods ? (
+                        <AuthSeparator
+                            classNames={classNames}
+                            localization={localization}
+                        />
+                    ) : null
 
-                {view !== "RESET_PASSWORD" &&
-                    (social?.providers?.length ||
-                        genericOAuth?.providers?.length ||
-                        (view === "SIGN_IN" && passkey)) && (
-                        <>
-                            {(credentials || magicLink || emailOTP) && (
-                                <div
-                                    className={cn(
-                                        "flex items-center gap-2",
-                                        classNames?.continueWith
-                                    )}
-                                >
-                                    <Separator
-                                        className={cn(
-                                            "!w-auto grow",
-                                            classNames?.separator
-                                        )}
-                                    />
-
-                                    <span className="flex-shrink-0 text-muted-foreground text-sm">
-                                        {localization.OR_CONTINUE_WITH}
-                                    </span>
-
-                                    <Separator
-                                        className={cn(
-                                            "!w-auto grow",
-                                            classNames?.separator
-                                        )}
-                                    />
-                                </div>
-                            )}
-
-                            <div className="grid gap-4">
-                                {(social?.providers?.length ||
-                                    genericOAuth?.providers?.length) && (
-                                    <div
-                                        className={cn(
-                                            "flex w-full items-center justify-between gap-4",
-                                            socialLayout === "horizontal" &&
-                                                "flex-wrap",
-                                            socialLayout === "vertical" &&
-                                                "flex-col",
-                                            socialLayout === "grid" &&
-                                                "grid grid-cols-2"
-                                        )}
-                                    >
-                                        {social?.providers?.map((provider) => {
-                                            const socialProvider =
-                                                socialProviders.find(
-                                                    (socialProvider) =>
-                                                        socialProvider.provider ===
-                                                        provider
-                                                )
-                                            if (!socialProvider) return null
-
-                                            return (
-                                                <ProviderButton
-                                                    key={provider}
-                                                    classNames={classNames}
-                                                    callbackURL={callbackURL}
-                                                    isSubmitting={isSubmitting}
-                                                    localization={localization}
-                                                    provider={socialProvider}
-                                                    redirectTo={redirectTo}
-                                                    setIsSubmitting={
-                                                        setIsSubmitting
-                                                    }
-                                                    socialLayout={socialLayout}
-                                                />
-                                            )
-                                        })}
-
-                                        {genericOAuth?.providers?.map(
-                                            (provider) => (
-                                                <ProviderButton
-                                                    key={provider.provider}
-                                                    classNames={classNames}
-                                                    callbackURL={callbackURL}
-                                                    isSubmitting={isSubmitting}
-                                                    localization={localization}
-                                                    provider={provider}
-                                                    redirectTo={redirectTo}
-                                                    setIsSubmitting={
-                                                        setIsSubmitting
-                                                    }
-                                                    socialLayout={socialLayout}
-                                                    other
-                                                />
-                                            )
-                                        )}
-                                    </div>
-                                )}
-
-                                {passkey &&
-                                    [
-                                        "SIGN_IN",
-                                        "MAGIC_LINK",
-                                        "EMAIL_OTP",
-                                        "RECOVER_ACCOUNT",
-                                        "TWO_FACTOR",
-                                        "FORGOT_PASSWORD"
-                                    ].includes(view) && (
-                                        <PasskeyButton
-                                            classNames={classNames}
-                                            isSubmitting={isSubmitting}
-                                            localization={localization}
-                                            redirectTo={redirectTo}
-                                            setIsSubmitting={setIsSubmitting}
-                                        />
-                                    )}
-                            </div>
-                        </>
-                    )}
+                    // Render sections based on order
+                    if (order === "social-first") {
+                        return (
+                            <>
+                                {socialSection}
+                                {separator}
+                                {credentialsSection}
+                            </>
+                        )
+                    } else {
+                        return (
+                            <>
+                                {credentialsSection}
+                                {separator}
+                                {socialSection}
+                            </>
+                        )
+                    }
+                })()}
             </CardContent>
 
             {credentials && signUp && (

@@ -46,7 +46,13 @@ export interface AuthFormProps {
     redirectTo?: string
     view?: AuthView
     otpSeparators?: 0 | 1 | 2
+    /**
+     * OTP code length
+     * @default 6
+     */
+    otpLength?: number
     setIsSubmitting?: (isSubmitting: boolean) => void
+    onOTPPhaseChange?: (isOTPPhase: boolean) => void
 }
 
 export function AuthForm({
@@ -59,7 +65,9 @@ export function AuthForm({
     redirectTo,
     view,
     otpSeparators = 0,
-    setIsSubmitting
+    otpLength = 6,
+    setIsSubmitting,
+    onOTPPhaseChange
 }: AuthFormProps) {
     const {
         basePath,
@@ -176,7 +184,10 @@ export function AuthForm({
                 localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
+                otpSeparators={otpSeparators}
+                otpLength={otpLength}
                 setIsSubmitting={setIsSubmitting}
+                onOTPPhaseChange={onOTPPhaseChange}
             />
         ) : null
     }
@@ -231,7 +242,10 @@ export function AuthForm({
                 localization={localization}
                 redirectTo={redirectTo}
                 isSubmitting={isSubmitting}
+                otpSeparators={otpSeparators}
+                otpLength={otpLength}
                 setIsSubmitting={setIsSubmitting}
+                onOTPPhaseChange={onOTPPhaseChange}
             />
         )
     }
