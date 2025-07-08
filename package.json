@@ -1,7 +1,15 @@
 {
-    "name": "@daveyplate/better-auth-ui",
-    "homepage": "https://better-auth-ui.com",
-    "version": "2.0.12",
+    "name": "@lunaon/better-auth-ui",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/LunaOn/npm_packages.git"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com",
+        "access": "restricted"
+    },
+    "homepage": "https://github.com/LunaOn/npm_packages/pkgs/npm/better-auth-ui",
+    "version": "2.0.13",
     "description": "Plug & play shadcn/ui components for better-auth",
     "scripts": {
         "build": "tsup --clean --dts",
