@@ -7,6 +7,8 @@ export const authViewPaths = {
     CALLBACK: "callback",
     /** @default "email-otp" */
     EMAIL_OTP: "email-otp",
+    /** @default "phone-otp" */
+    PHONE_OTP: "phone-otp",
     /** @default "forgot-password" */
     FORGOT_PASSWORD: "forgot-password",
     /** @default "magic-link" */

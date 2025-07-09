@@ -233,6 +233,53 @@ export const authLocalization = {
     EMAIL_OTP_VERIFICATION_SENT:
         "Please check your email for the verification code.",
 
+    /** @default "Phone Number" */
+    PHONE_NUMBER: "Phone Number",
+
+    /** @default "Enter the phone number you want to use to log in." */
+    PHONE_NUMBER_DESCRIPTION: "Enter the phone number you want to use to log in.",
+
+    /** @default "Please enter a valid phone number." */
+    PHONE_NUMBER_INSTRUCTIONS: "Please enter a valid phone number.",
+
+    /** @default "Phone number is the same" */
+    PHONE_NUMBER_IS_THE_SAME: "Phone number is the same",
+
+    /** @default "+1 (555) 123-4567" */
+    PHONE_NUMBER_PLACEHOLDER: "+1 (555) 123-4567",
+
+    /** @default "Phone number is required" */
+    PHONE_NUMBER_REQUIRED: "Phone number is required",
+
+    /** @default "Please check your phone to verify the change." */
+    PHONE_NUMBER_VERIFY_CHANGE: "Please check your phone to verify the change.",
+
+    /** @default "Phone Code" */
+    PHONE_OTP: "Phone Code",
+
+    /** @default "Send code" */
+    PHONE_OTP_SEND_ACTION: "Send code",
+
+    /** @default "Verify code" */
+    PHONE_OTP_VERIFY_ACTION: "Verify code",
+
+    /** @default "Enter your phone number to receive a code" */
+    PHONE_OTP_DESCRIPTION: "Enter your phone number to receive a code",
+
+    /** @default "Please check your phone for the verification code." */
+    PHONE_OTP_VERIFICATION_SENT:
+        "Please check your phone for the verification code.",
+
+    /** @default "Verify Your Phone" */
+    VERIFY_YOUR_PHONE: "Verify Your Phone",
+
+    /** @default "Please verify your phone number. Check your phone for the verification code. If you haven't received the code, click the button below to resend." */
+    VERIFY_YOUR_PHONE_DESCRIPTION:
+        "Please verify your phone number. Check your phone for the verification code. If you haven't received the code, click the button below to resend.",
+
+    /** @default "Resend verification code" */
+    RESEND_VERIFICATION_CODE: "Resend verification code",
+
     /** @default "Name" */
     NAME: "Name",
 

@@ -9,6 +9,7 @@ import type { AuthLocalization } from "../../localization/auth-localization"
 import { AuthCallback } from "./auth-callback"
 import { EmailOTPForm } from "./forms/email-otp-form"
 import { ForgotPasswordForm } from "./forms/forgot-password-form"
+import { PhoneOTPForm } from "./forms/phone-otp-form"
 import { MagicLinkForm } from "./forms/magic-link-form"
 import { RecoverAccountForm } from "./forms/recover-account-form"
 import { ResetPasswordForm } from "./forms/reset-password-form"
@@ -75,6 +76,7 @@ export function AuthForm({
         localization: contextLocalization,
         magicLink,
         emailOTP,
+        phoneOTP,
         signUp,
         twoFactor: twoFactorEnabled,
         viewPaths,
@@ -114,6 +116,13 @@ export function AuthForm({
             isInvalidView = true
         }
 
+        if (
+            view === "PHONE_OTP" &&
+            (!phoneOTP || (!credentials && !magicLink))
+        ) {
+            isInvalidView = true
+        }
+
         if (view === "SIGN_UP" && !signUpEnabled) {
             isInvalidView = true
         }
@@ -148,6 +157,7 @@ export function AuthForm({
         credentials,
         replace,
         emailOTP,
+        phoneOTP,
         signUpEnabled,
         magicLink,
         twoFactorEnabled
@@ -178,6 +188,19 @@ export function AuthForm({
             />
         ) : emailOTP ? (
             <EmailOTPForm
+                className={className}
+                classNames={classNames}
+                callbackURL={callbackURL}
+                localization={localization}
+                redirectTo={redirectTo}
+                isSubmitting={isSubmitting}
+                otpSeparators={otpSeparators}
+                otpLength={otpLength}
+                setIsSubmitting={setIsSubmitting}
+                onOTPPhaseChange={onOTPPhaseChange}
+            />
+        ) : phoneOTP ? (
+            <PhoneOTPForm
                 className={className}
                 classNames={classNames}
                 callbackURL={callbackURL}
@@ -268,6 +291,23 @@ export function AuthForm({
                 className={className}
                 classNames={classNames}
                 localization={localization}
+            />
+        )
+    }
+
+    if (view === "PHONE_OTP") {
+        return (
+            <PhoneOTPForm
+                className={className}
+                classNames={classNames}
+                callbackURL={callbackURL}
+                localization={localization}
+                redirectTo={redirectTo}
+                isSubmitting={isSubmitting}
+                otpSeparators={otpSeparators}
+                otpLength={otpLength}
+                setIsSubmitting={setIsSubmitting}
+                onOTPPhaseChange={onOTPPhaseChange}
             />
         )
     }

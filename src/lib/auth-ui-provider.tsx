@@ -115,6 +115,11 @@ export type AuthUIContextType = {
      */
     changeEmail?: boolean
     /**
+     * Enable or disable user change phone support
+     * @default true
+     */
+    changePhone?: boolean
+    /**
      * User Account deletion configuration
      * @default undefined
      */
@@ -148,6 +153,11 @@ export type AuthUIContextType = {
      * @default false
      */
     emailOTP?: boolean
+    /**
+     * Enable or disable Phone OTP support
+     * @default false
+     */
+    phoneOTP?: boolean
     /**
      * Enable or disable Multi Session support
      * @default false
@@ -391,6 +401,7 @@ export const AuthUIProvider = ({
     rememberMe,
     username,
     changeEmail = true,
+    changePhone = true,
     freshAge = 60 * 60 * 24,
     hooks: hooksProp,
     mutators: mutatorsProp,
@@ -804,6 +815,7 @@ export const AuthUIProvider = ({
                 captcha,
                 redirectTo,
                 changeEmail,
+                changePhone,
                 credentials,
                 deleteUser,
                 freshAge,

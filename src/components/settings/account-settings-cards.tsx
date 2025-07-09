@@ -8,6 +8,7 @@ import { UpdateFieldCard } from "./account/update-field-card"
 import { UpdateNameCard } from "./account/update-name-card"
 import { UpdateUsernameCard } from "./account/update-username-card"
 import { ChangeEmailCard } from "./security/change-email-card"
+import { ChangePhoneCard } from "./security/change-phone-card"
 import type { SettingsCardsProps } from "./settings-cards"
 
 export function AccountSettingsCards({
@@ -19,6 +20,7 @@ export function AccountSettingsCards({
         additionalFields,
         avatar,
         changeEmail,
+        changePhone,
         credentials,
         hooks: { useSession },
         multiSession,
@@ -60,6 +62,12 @@ export function AccountSettingsCards({
                 classNames={classNames?.card}
                 localization={localization}
                 disabled={!changeEmail}
+            />
+
+            <ChangePhoneCard
+                classNames={classNames?.card}
+                localization={localization}
+                disabled={!changePhone}
             />
 
             {settings?.fields?.map((field) => {

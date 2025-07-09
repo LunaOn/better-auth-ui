@@ -9,6 +9,7 @@ import type { AuthCardClassNames } from "./auth-card"
 import { AuthForm } from "./auth-form"
 import { EmailOTPButton } from "./email-otp-button"
 import { MagicLinkButton } from "./magic-link-button"
+import { PhoneOTPButton } from "./phone-otp-button"
 
 export interface CredentialsSectionProps {
     classNames?: AuthCardClassNames
@@ -37,10 +38,10 @@ export function CredentialsSection({
     view,
     onOTPPhaseChange
 }: CredentialsSectionProps) {
-    const { credentials, magicLink, emailOTP } = useContext(AuthUIContext)
+    const { credentials, magicLink, emailOTP, phoneOTP } = useContext(AuthUIContext)
 
     // Don't render if none of the credential options are enabled
-    if (!credentials && !magicLink && !emailOTP) {
+    if (!credentials && !magicLink && !emailOTP && !phoneOTP) {
         return null
     }
 
@@ -89,6 +90,15 @@ export function CredentialsSection({
                     (magicLink &&
                         ["SIGN_IN", "MAGIC_LINK"].includes(view))) && (
                     <EmailOTPButton
+                        classNames={classNames}
+                        localization={localization}
+                        view={view}
+                        isSubmitting={isSubmitting}
+                    />
+                )}
+
+            {phoneOTP && (
+                    <PhoneOTPButton
                         classNames={classNames}
                         localization={localization}
                         view={view}
