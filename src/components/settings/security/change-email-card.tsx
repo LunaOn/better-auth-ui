@@ -23,8 +23,9 @@ export function ChangeEmailCard({
     className,
     classNames,
     localization,
+    disabled,
     ...props
-}: SettingsCardProps) {
+}: SettingsCardProps & { disabled?: boolean }) {
     const {
         authClient,
         emailVerification,
@@ -57,6 +58,8 @@ export function ChangeEmailCard({
     const { isSubmitting } = form.formState
 
     const changeEmail = async ({ email }: z.infer<typeof formSchema>) => {
+        if (disabled) return
+        
         if (email === sessionData?.user.email) {
             await new Promise((resolve) => setTimeout(resolve))
             toast({
@@ -131,6 +134,7 @@ export function ChangeEmailCard({
                         isPending={isPending}
                         title={localization.EMAIL}
                         actionLabel={localization.SAVE}
+                        disabled={disabled}
                         {...props}
                     >
                         <CardContent className={classNames?.content}>
@@ -156,7 +160,7 @@ export function ChangeEmailCard({
                                                         localization.EMAIL_PLACEHOLDER
                                                     }
                                                     type="email"
-                                                    disabled={isSubmitting}
+                                                    disabled={isSubmitting || disabled}
                                                     {...field}
                                                 />
                                             </FormControl>

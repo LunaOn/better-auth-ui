@@ -56,12 +56,11 @@ export function AccountSettingsCards({
                 />
             )}
 
-            {changeEmail && (
-                <ChangeEmailCard
-                    classNames={classNames?.card}
-                    localization={localization}
-                />
-            )}
+            <ChangeEmailCard
+                classNames={classNames?.card}
+                localization={localization}
+                disabled={!changeEmail}
+            />
 
             {settings?.fields?.map((field) => {
                 if (field === "image") return null
