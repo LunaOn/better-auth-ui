@@ -102,24 +102,15 @@ export function AuthForm({
     useEffect(() => {
         let isInvalidView = false
 
-        if (
-            view === "MAGIC_LINK" &&
-            (!magicLink || (!credentials && !emailOTP))
-        ) {
+        if (view === "MAGIC_LINK" && !magicLink) {
             isInvalidView = true
         }
 
-        if (
-            view === "EMAIL_OTP" &&
-            (!emailOTP || (!credentials && !magicLink))
-        ) {
+        if (view === "EMAIL_OTP" && !emailOTP) {
             isInvalidView = true
         }
 
-        if (
-            view === "PHONE_OTP" &&
-            (!phoneOTP || (!credentials && !magicLink))
-        ) {
+        if (view === "PHONE_OTP" && !phoneOTP) {
             isInvalidView = true
         }
 

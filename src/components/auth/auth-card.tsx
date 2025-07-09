@@ -103,6 +103,7 @@ export function AuthCard({
         localization: contextLocalization,
         magicLink,
         emailOTP,
+        phoneOTP,
         oneTap,
         passkey,
         settings,
@@ -126,6 +127,11 @@ export function AuthCard({
 
     const path = pathname?.split("/").pop()
     view = view || getAuthViewByPath(viewPaths, path) || "SIGN_IN"
+
+    // Force credentials-first order for OTP views
+    if (view === "EMAIL_OTP" || view === "PHONE_OTP") {
+        order = "credentials-first"
+    }
 
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isOTPPhase, setIsOTPPhase] = useState(false)
@@ -184,7 +190,7 @@ export function AuthCard({
         )
 
     const description =
-        !credentials && !magicLink && !emailOTP
+        !credentials && !magicLink && !emailOTP && !phoneOTP
             ? localization.DISABLED_CREDENTIALS_DESCRIPTION
             : localization[`${view}_DESCRIPTION` as keyof typeof localization]
 
@@ -223,7 +229,7 @@ export function AuthCard({
 
             <CardContent className={cn("grid gap-6", classNames?.content)}>
                 {oneTap &&
-                    ["SIGN_IN", "SIGN_UP", "MAGIC_LINK", "EMAIL_OTP"].includes(
+                    ["SIGN_IN", "SIGN_UP", "MAGIC_LINK", "EMAIL_OTP", "PHONE_OTP"].includes(
                         view
                     ) && !shouldDisableOtherMethods && (
                         <OneTap
@@ -234,7 +240,7 @@ export function AuthCard({
 
                 {(() => {
                     // Check if sections should be shown
-                    const hasCredentials = credentials || magicLink || emailOTP
+                    const hasCredentials = credentials || magicLink || emailOTP || phoneOTP
                     const hasSocial = view !== "RESET_PASSWORD" &&
                         (social?.providers?.length ||
                             genericOAuth?.providers?.length ||
@@ -307,7 +313,8 @@ export function AuthCard({
                 >
                     {view === "SIGN_IN" ||
                     view === "MAGIC_LINK" ||
-                    view === "EMAIL_OTP" ? (
+                    view === "EMAIL_OTP" ||
+                    view === "PHONE_OTP" ? (
                         localization.DONT_HAVE_AN_ACCOUNT
                     ) : view === "SIGN_UP" ? (
                         localization.ALREADY_HAVE_AN_ACCOUNT
@@ -318,13 +325,14 @@ export function AuthCard({
                     {view === "SIGN_IN" ||
                     view === "MAGIC_LINK" ||
                     view === "EMAIL_OTP" ||
+                    view === "PHONE_OTP" ||
                     view === "SIGN_UP" ? (
                         <Link
                             className={cn(
                                 "text-foreground underline",
                                 classNames?.footerLink
                             )}
-                            href={`${basePath}/${viewPaths[view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" ? "SIGN_UP" : "SIGN_IN"]}${isHydrated ? window.location.search : ""}`}
+                            href={`${basePath}/${viewPaths[view === "SIGN_IN" || view === "MAGIC_LINK" || view === "EMAIL_OTP" || view === "PHONE_OTP" ? "SIGN_UP" : "SIGN_IN"]}${isHydrated ? window.location.search : ""}`}
                         >
                             <Button
                                 variant="link"
@@ -336,7 +344,8 @@ export function AuthCard({
                             >
                                 {view === "SIGN_IN" ||
                                 view === "MAGIC_LINK" ||
-                                view === "EMAIL_OTP"
+                                view === "EMAIL_OTP" ||
+                                view === "PHONE_OTP"
                                     ? localization.SIGN_UP
                                     : localization.SIGN_IN}
                             </Button>

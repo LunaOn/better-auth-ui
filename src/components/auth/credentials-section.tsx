@@ -97,7 +97,8 @@ export function CredentialsSection({
                     />
                 )}
 
-            {phoneOTP && (
+            {/* Add phone OTP button when both email and phone OTP are enabled */}
+            {phoneOTP && emailOTP && view !== "PHONE_OTP" && (
                     <PhoneOTPButton
                         classNames={classNames}
                         localization={localization}
