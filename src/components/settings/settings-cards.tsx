@@ -1,6 +1,5 @@
 "use client"
 
-import { MenuIcon } from "lucide-react"
 import { useContext } from "react"
 
 import { useAuthenticate } from "../../hooks/use-authenticate"
@@ -12,14 +11,7 @@ import { OrganizationMembersCard } from "../organization/organization-members-ca
 import { OrganizationSettingsCards } from "../organization/organization-settings-cards"
 import { OrganizationsCard } from "../organization/organizations-card"
 import { Button } from "../ui/button"
-import {
-    Drawer,
-    DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
-    DrawerTrigger
-} from "../ui/drawer"
-import { Label } from "../ui/label"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs"
 import { AccountSettingsCards } from "./account-settings-cards"
 import { APIKeysCard } from "./api-key/api-keys-card"
 import { SecuritySettingsCards } from "./security-settings-cards"
@@ -30,12 +22,11 @@ export type SettingsCardsClassNames = {
     card?: SettingsCardClassNames
     cards?: string
     icon?: string
-    drawer?: {
+    tabs?: {
         base?: string
+        list?: string
         trigger?: string
         content?: string
-        menuIcon?: string
-        menuItem?: string
     }
     sidebar?: {
         base?: string
@@ -160,55 +151,106 @@ export function SettingsCards({
                 classNames?.base
             )}
         >
-            <div className="flex justify-between gap-2 md:hidden">
-                <Label className="font-semibold text-base">
-                    {currentItem?.label}
-                </Label>
-
-                <Drawer>
-                    <DrawerTrigger asChild>
-                        <Button
-                            className={cn(classNames?.drawer?.trigger)}
-                            variant="outline"
+            {/* Mobile: Tabs Layout */}
+            <div className="md:hidden">
+                <Tabs 
+                    value={view} 
+                    className={cn(classNames?.tabs?.base)}
+                    onValueChange={(value) => {
+                        const targetView = value as SettingsView
+                        const targetPath = `${settings?.basePath || basePath}/${viewPaths[targetView]}`
+                        window.location.href = targetPath
+                    }}
+                >
+                    <TabsList className={cn("grid w-full", classNames?.tabs?.list)} style={{
+                        gridTemplateColumns: `repeat(${currentNavigationGroup.length}, 1fr)`
+                    }}>
+                        {currentNavigationGroup.map((item) => (
+                            <TabsTrigger 
+                                key={item.view}
+                                value={item.view}
+                                className={cn(
+                                    "text-xs",
+                                    classNames?.tabs?.trigger
+                                )}
+                            >
+                                {item.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                    
+                    {currentNavigationGroup.map((item) => (
+                        <TabsContent 
+                            key={item.view} 
+                            value={item.view}
+                            className={cn(
+                                "mt-4",
+                                classNames?.tabs?.content
+                            )}
                         >
-                            <MenuIcon
-                                className={cn(classNames?.drawer?.menuIcon)}
-                            />
-                        </Button>
-                    </DrawerTrigger>
+                            {item.view === "SETTINGS" && (
+                                <AccountSettingsCards
+                                    classNames={classNames}
+                                    localization={localization}
+                                />
+                            )}
 
-                    <DrawerContent className={cn(classNames?.drawer?.content)}>
-                        <DrawerHeader>
-                            <DrawerTitle className="hidden">
-                                {localization.SETTINGS}
-                            </DrawerTitle>
-                        </DrawerHeader>
-                        <div className="flex flex-col px-4 pb-4">
-                            {currentNavigationGroup.map((item) => (
-                                <Link
-                                    key={item.view}
-                                    href={`${settings?.basePath || basePath}/${viewPaths[item.view]}`}
+                            {item.view === "SECURITY" && (
+                                <SecuritySettingsCards
+                                    classNames={classNames}
+                                    localization={localization}
+                                />
+                            )}
+
+                            {item.view === "API_KEYS" && apiKey && (
+                                <div className={cn("flex w-full flex-col", classNames?.cards)}>
+                                    <APIKeysCard
+                                        classNames={classNames?.card}
+                                        localization={localization}
+                                    />
+                                </div>
+                            )}
+
+                            {item.view === "ORGANIZATION" && organization && (
+                                <OrganizationSettingsCards
+                                    classNames={classNames}
+                                    localization={localization}
+                                />
+                            )}
+
+                            {item.view === "ORGANIZATIONS" && organization && (
+                                <div className={cn("flex w-full flex-col", classNames?.cards)}>
+                                    <OrganizationsCard
+                                        classNames={classNames?.card}
+                                        localization={localization}
+                                    />
+                                </div>
+                            )}
+
+                            {item.view === "MEMBERS" && organization && (
+                                <div
+                                    className={cn(
+                                        "flex w-full flex-col gap-4 md:gap-6",
+                                        classNames?.cards
+                                    )}
                                 >
-                                    <Button
-                                        size="lg"
-                                        className={cn(
-                                            "w-full justify-start px-4 transition-none",
-                                            classNames?.drawer?.menuItem,
-                                            view === item.view
-                                                ? "font-semibold"
-                                                : "text-foreground/70"
-                                        )}
-                                        variant="ghost"
-                                    >
-                                        {item.label}
-                                    </Button>
-                                </Link>
-                            ))}
-                        </div>
-                    </DrawerContent>
-                </Drawer>
+                                    <OrganizationMembersCard
+                                        classNames={classNames?.card}
+                                        localization={localization}
+                                    />
+
+                                    <OrganizationInvitationsCard
+                                        classNames={classNames?.card}
+                                        localization={localization}
+                                    />
+                                </div>
+                            )}
+                        </TabsContent>
+                    ))}
+                </Tabs>
             </div>
 
+            {/* Desktop: Sidebar Layout */}
             <div className="hidden md:block">
                 <div
                     className={cn(
@@ -241,63 +283,66 @@ export function SettingsCards({
                 </div>
             </div>
 
-            {view === "SETTINGS" && (
-                <AccountSettingsCards
-                    classNames={classNames}
-                    localization={localization}
-                />
-            )}
-
-            {view === "SECURITY" && (
-                <SecuritySettingsCards
-                    classNames={classNames}
-                    localization={localization}
-                />
-            )}
-
-            {view === "API_KEYS" && apiKey && (
-                <div className={cn("flex w-full flex-col", classNames?.cards)}>
-                    <APIKeysCard
-                        classNames={classNames?.card}
+            {/* Desktop: Content Area */}
+            <div className="hidden md:block w-full">
+                {view === "SETTINGS" && (
+                    <AccountSettingsCards
+                        classNames={classNames}
                         localization={localization}
                     />
-                </div>
-            )}
+                )}
 
-            {view === "ORGANIZATION" && organization && (
-                <OrganizationSettingsCards
-                    classNames={classNames}
-                    localization={localization}
-                />
-            )}
-
-            {view === "ORGANIZATIONS" && organization && (
-                <div className={cn("flex w-full flex-col", classNames?.cards)}>
-                    <OrganizationsCard
-                        classNames={classNames?.card}
+                {view === "SECURITY" && (
+                    <SecuritySettingsCards
+                        classNames={classNames}
                         localization={localization}
                     />
-                </div>
-            )}
+                )}
 
-            {view === "MEMBERS" && organization && (
-                <div
-                    className={cn(
-                        "flex w-full flex-col gap-4 md:gap-6",
-                        classNames?.cards
-                    )}
-                >
-                    <OrganizationMembersCard
-                        classNames={classNames?.card}
+                {view === "API_KEYS" && apiKey && (
+                    <div className={cn("flex w-full flex-col", classNames?.cards)}>
+                        <APIKeysCard
+                            classNames={classNames?.card}
+                            localization={localization}
+                        />
+                    </div>
+                )}
+
+                {view === "ORGANIZATION" && organization && (
+                    <OrganizationSettingsCards
+                        classNames={classNames}
                         localization={localization}
                     />
+                )}
 
-                    <OrganizationInvitationsCard
-                        classNames={classNames?.card}
-                        localization={localization}
-                    />
-                </div>
-            )}
+                {view === "ORGANIZATIONS" && organization && (
+                    <div className={cn("flex w-full flex-col", classNames?.cards)}>
+                        <OrganizationsCard
+                            classNames={classNames?.card}
+                            localization={localization}
+                        />
+                    </div>
+                )}
+
+                {view === "MEMBERS" && organization && (
+                    <div
+                        className={cn(
+                            "flex w-full flex-col gap-4 md:gap-6",
+                            classNames?.cards
+                        )}
+                    >
+                        <OrganizationMembersCard
+                            classNames={classNames?.card}
+                            localization={localization}
+                        />
+
+                        <OrganizationInvitationsCard
+                            classNames={classNames?.card}
+                            localization={localization}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
