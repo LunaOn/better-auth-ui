@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Loader2 } from "lucide-react"
 import { useContext, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -150,11 +151,7 @@ export function ChangePhoneCard({
         }
     }
 
-    const handleGoBack = () => {
-        setIsVerifying(false)
-        setNewPhoneNumber("")
-        otpForm.reset()
-    }
+
 
     const resendVerification = async () => {
         if (!sessionData) return
@@ -193,16 +190,11 @@ export function ChangePhoneCard({
                         instructions={localization.PHONE_OTP_DESCRIPTION}
                         isPending={isPending}
                         title={localization.PHONE_OTP}
-                        actionLabel={localization.PHONE_OTP_VERIFY_ACTION}
                         disabled={disabled || otpForm.formState.isSubmitting}
                         {...props}
                     >
                         <CardContent className={classNames?.content}>
                             <div className="space-y-4">
-                                <div className="text-sm text-muted-foreground">
-                                    {localization.PHONE_OTP_VERIFICATION_SENT}
-                                </div>
-                                
                                 <FormField
                                     control={otpForm.control}
                                     name="code"
@@ -230,7 +222,7 @@ export function ChangePhoneCard({
                                                     className={classNames?.input}
                                                     disabled={otpForm.formState.isSubmitting || disabled}
                                                 >
-                                                    <OTPInputGroup otpSeparators={0} />
+                                                    <OTPInputGroup otpSeparators={1} />
                                                 </InputOTP>
                                             </FormControl>
                                             <FormMessage className={classNames?.error} />
@@ -239,12 +231,14 @@ export function ChangePhoneCard({
                                 />
                                 
                                 <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={handleGoBack}
-                                    className="w-full"
+                                    type="submit"
+                                    disabled={otpForm.formState.isSubmitting || disabled}
                                 >
-                                    {localization.GO_BACK}
+                                    {otpForm.formState.isSubmitting ? (
+                                        <Loader2 className="animate-spin" />
+                                    ) : (
+                                        localization.PHONE_OTP_VERIFY_ACTION
+                                    )}
                                 </Button>
                             </div>
                         </CardContent>
